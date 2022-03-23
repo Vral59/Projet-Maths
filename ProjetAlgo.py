@@ -5,6 +5,17 @@ Created on Tue Mar 22 14:03:11 2022
 @author: Valentin
 """
 
+""" IMPORT """
+import random
+
+
+#QUESTION 1
+""" qN = (rN-bN)/(hN-bN) """
+
+
+#QUESTION 2
+""" Voir fonction dans QUESTION 3 """
+
 #QUESTION 3
    
 def trianglePascal(n):
@@ -32,21 +43,56 @@ def pricer_1(N,rN,hN,bN,s,f):
 
 #QUESTION 4
 
-
-def f(x):
+def f1(x):
     return max(x - 110,0)
 
-pricer = pricer_1(20,0.02,0.05,-0.05,100,f)
+pricer = pricer_1(20,0.02,0.05,-0.05,100,f1)
+
+print("Question 4 :")
+print("Prix : ",pricer)
 
 #QUESTION 5
 
-def trouverAnte(N,rN,hN,bN,x,qN,f):
-    return (1/(1+rN))*(qN*f(x*(1+hN))+(1-qN)*f(x*(1+bN)))
 
 def pricer_2(N,rN,hN,bN,s,f):
-    init = [f(s*((1+rN)**k)*((1+hN)**(N-k)) for k in range(0,N+1)]
-    for i in range(N-1,0,-1):
-        #TODO
-        
-    
+    qN = (rN-bN)/(hN-bN)
+    # Initialisation des f(x) à la fin de l'arbre
+    tree = [[f(s*((1+bN)**k)*((1+hN)**(N-k))) for k in range(0,N+1)]]
+    for n in range(N,0,-1):
+        aux = []
+        for i in range(0,n):
+            fup = tree[-1][i]
+            fdown = tree[-1][i+1]
+            vn = (1/(1+rN))*(qN*fup+(1-qN)*fdown)
+            aux.append(vn)
+        tree.append(aux)
+    return tree
 
+def f2(x):
+    return max(x - 100,0)
+
+#QUESTION 6
+
+print("Question 6 :")
+arbre = pricer_2(3,0.02,0.05,-0.05,100,f2)
+print("Prix : ", arbre[-1][0])
+print("Voici l'arbre :",arbre)
+#L'arbre est aussi visible en .SVG 
+
+#QUESTION 7
+
+randomN = random.randint(5, 15)
+s = 100
+rN = 0.01
+hN = 0.05
+bN = -0.05
+
+tree = pricer_2(randomN,rN,hN,bN,s,f1)
+
+pricerRandom1 = pricer_1(randomN,rN,hN,bN,s,f1) 
+pricerRandom2 = tree[-1][0]
+
+print("Question 7 :")
+print("On a N = ",randomN)
+print("pricer 1 avec N random :", pricerRandom1)
+print("pricer 2 avec N random :", pricerRandom2)
