@@ -7,6 +7,7 @@ Created on Tue Mar 22 14:03:11 2022
 
 """ IMPORT """
 import random
+import time
 
 
 #QUESTION 1
@@ -87,12 +88,65 @@ rN = 0.01
 hN = 0.05
 bN = -0.05
 
+print("Temps pricer 2")
+start = time.time()
 tree = pricer_2(randomN,rN,hN,bN,s,f1)
+end = time.time()
+elapsed = end - start
+print(f'Temps d\'exécution : {elapsed:.2}ms')
 
+print("Temps pricer 1")
+start = time.time()
 pricerRandom1 = pricer_1(randomN,rN,hN,bN,s,f1) 
+end = time.time()
+elapsed = end - start
+print(f'Temps d\'exécution : {elapsed:.2}ms')
 pricerRandom2 = tree[-1][0]
 
 print("Question 7 :")
 print("On a N = ",randomN)
 print("pricer 1 avec N random :", pricerRandom1)
 print("pricer 2 avec N random :", pricerRandom2)
+
+### Question 10
+def beta(x,hN,bN,vku,vkd,rN,k):
+    num = vkd*(1+hN)-vku*(1+bN)
+    den = (hN-bN)*((1+rN)**k)
+    return num/den
+
+def alpha(x,hN,bN,vku,vkd,rN,k):
+    num = vku-beta(x,hN,bN,vku,vkd,rN,k)*((1+rN)**k)
+    den = x*(1+hN)
+    return num/den
+
+def couverture(N,s,rN,hN,bN,f):
+    tabVk = pricer_2(N, rN, hN, bN, s, f)
+    tabVk.reverse()
+    print("Voici le tableau :")
+    print(tabVk)
+    a = alpha(s,hN,bN,tabVk[1][0],tabVk[1][1],rN,1)
+    b = beta(s,hN,bN,tabVk[1][0],tabVk[1][1],rN,1)
+    tree = [[(s,a,b)]]
+    for i in range(1,N):
+        aux = []
+        for j in range(len(tree[-1])):
+            x,aa,bb = tree[-1][j]
+            vku1 = tabVk[i+1][j]
+            vkd1 = tabVk[i+1][j+1]
+            vku2 = tabVk[i+1][j+1]
+            vkd2 = tabVk[i+1][j+2]
+            xup = x*(1+hN)
+            xdown = x*(1+bN)
+            aup = alpha(xup,hN,bN,vku1,vkd1,rN,i+1)
+            bup = beta(xup,hN,bN,vku1,vkd1,rN,i+1)
+            adown = alpha(xdown,hN,bN,vku2,vkd2,rN,i+1)
+            bdown = beta(xdown,hN,bN,vku2,vkd2,rN,i+1)
+            aux.append((xup,aup,bup))
+            aux.append((xdown,adown,bdown))
+        tree.append(aux)
+    return tree
+
+def f(x):
+    return max(x-100,0)
+
+arbre = couverture(2, 100, 0.03, 0.05, -0.05, f)
