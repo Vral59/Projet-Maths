@@ -8,7 +8,9 @@ Created on Tue Mar 22 14:03:11 2022
 """ IMPORT """
 import random
 import time
-
+import numpy as np
+import math
+import matplotlib.pyplot as plt
 
 #QUESTION 1
 """ qN = (rN-bN)/(hN-bN) """
@@ -150,3 +152,15 @@ def f(x):
     return max(x-100,0)
 
 arbre = couverture(2, 100, 0.03, 0.05, -0.05, f)
+
+def pricer_MC(n,s,r,sigma,T,f):
+    normale = np.random.normal(0,1,n)
+    somme = 0
+    for i in range(n):
+        somme += math.exp(r*T)*f(s*math.exp((r - (sigma**2)/2)*T+sigma*math.sqrt(T)*normale[i]))
+    return somme/n
+
+listeK = [i for i in range(1,14)]
+listePrix = [pricer_MC(el*(10**5),100,0.01,0.1,1,f) for el in listeK]
+plt.plot(listeK, listePrix, 'ro')
+plt.show()
